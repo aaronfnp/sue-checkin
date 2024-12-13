@@ -94,11 +94,7 @@ function App() {
                   <input
                     type="checkbox"
                     checked={worker.isCheckedOut}
-                    onChange={() =>
-                      worker.isCheckedOut
-                        ? checkInPerson(index)
-                        : checkOutPerson(index)
-                    }
+                    onChange={() => setIsCheckingOut(!isCheckingOut)}
                   />
                 </td>
                 <td>

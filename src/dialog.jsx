@@ -9,22 +9,15 @@ import DialogTitle from "@mui/material/DialogTitle";
 export default function AlertDialog({ isCheckingOut, setIsCheckingOut }) {
   const [open, setOpen] = React.useState(false);
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
+  const handleAgree = () => {
+    setIsCheckingOut(false);
   };
 
   return (
     <React.Fragment>
-      <Button variant="outlined" onClick={handleClickOpen}>
-        Open alert dialog
-      </Button>
       <Dialog
         open={isCheckingOut}
-        onClose={handleClose}
+        onClose={() => setIsCheckingOut(false)}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
@@ -33,13 +26,12 @@ export default function AlertDialog({ isCheckingOut, setIsCheckingOut }) {
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            Let Google help apps determine location. This means sending
-            anonymous location data to Google, even when no apps are running.
+            Do you want to change this person`s status?
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Disagree</Button>
-          <Button onClick={handleClose} autoFocus>
+          <Button onClick={() => setIsCheckingOut(false)}>Cancel</Button>
+          <Button onClick={handleAgree} autoFocus>
             Agree
           </Button>
         </DialogActions>
