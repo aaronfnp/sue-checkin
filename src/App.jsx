@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
 import AlertDialog from "./dialog";
 
 function App() {
-  const [count, setCount] = useState(0);
   const [workerList, setWorkerList] = useState([]);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [selectedWorkerIndex, setSelectedWorkerIndex] = useState(null);
 
   const workerNames = [
     "Tony Caprarese",
@@ -70,6 +68,11 @@ function App() {
       <AlertDialog
         isCheckingOut={isCheckingOut}
         setIsCheckingOut={setIsCheckingOut}
+        checkInPerson={checkInPerson}
+        checkOutPerson={checkOutPerson}
+        selectedWorkerIndex={selectedWorkerIndex}
+        setSelectedWorkerIndex={setSelectedWorkerIndex}
+        workerList={workerList}
       />
       <h1>Sue Check-In</h1>
       <div className="card"></div>
@@ -94,7 +97,10 @@ function App() {
                   <input
                     type="checkbox"
                     checked={worker.isCheckedOut}
-                    onChange={() => setIsCheckingOut(!isCheckingOut)}
+                    onChange={() => {
+                      setSelectedWorkerIndex(index);
+                      setIsCheckingOut(true);
+                    }}
                   />
                 </td>
                 <td>
