@@ -16,6 +16,19 @@ function App() {
     "Michael Jurgenson",
   ];
 
+  // Saving Locally
+  function saveLocally() {
+    localStorage.setItem("workerList", JSON.stringify(workerList));
+    console.log("updating workerlist");
+  }
+
+  // Loading Local
+  useEffect(() => {
+    const savedData = localStorage.getItem("workerList");
+    const parsedData = JSON.parse(savedData);
+    setWorkerList(parsedData);
+  }, []);
+
   useEffect(() => {
     const workers = workerNames.map((name) => ({
       name,
@@ -57,6 +70,7 @@ function App() {
       updatedList[index].timeStamp = 0;
     }
     setWorkerList(updatedList);
+    saveLocally();
   };
 
   return (
