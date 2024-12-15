@@ -18,13 +18,13 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
-  text-align: center; /* Centers text globally */
+  text-align: center;
 }
 
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
-  text-align: center; /* Centers the h1 text */
+  text-align: center;
 }
 
 button {
@@ -37,8 +37,8 @@ button {
   background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
-  display: inline-block; /* Makes sure buttons align correctly when centered */
-  text-align: center; /* Centers button text */
+  display: inline-block;
+  text-align: center;
 }
 
 button:hover {
@@ -54,7 +54,7 @@ a {
   font-weight: 500;
   color: #646cff;
   text-decoration: inherit;
-  text-align: center; /* Centers link text */
+  text-align: center;
 }
 
 a:hover {

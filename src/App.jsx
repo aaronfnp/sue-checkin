@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
+import { Switch, FormControlLabel } from "@mui/material";
 import "./App.css";
 import "./index.css";
-import { Switch, FormControlLabel } from "@mui/material";
 
 function App() {
   const [workerList, setWorkerList] = useState([]);
@@ -60,70 +60,129 @@ function App() {
   };
 
   return (
-    <>
-      <h1 className="text-[#0c1872;] text-4xl font-bold drop-shadow-md	">
-        Swisher Commercial
-      </h1>
-      <h1 className="text-[#0c1872;] text-3xl font-bold drop-shadow-md	">
-        Check-In
-      </h1>
-      <div className="card"></div>
-      <div className="worker-table">
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Status</th>
-              <th>Time Elapsed</th>
-            </tr>
-          </thead>
-          <tbody>
-            {workerList.map((worker, index) => (
-              <tr key={index}>
-                <td
-                  className={
-                    worker.isCheckedOut ? "bg-[#8c4b4e]" : "bg-[#5b8772]"
-                  }
-                >
-                  <span className="font-bold text-xl">{worker.name}</span>
-                </td>
-                <td>
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={worker.isCheckedOut}
-                        onChange={handleSwitchChange(index)}
-                        sx={{
-                          "& .MuiSwitch-switchBase.Mui-checked": {
-                            color: "red",
-                          },
-                          "& .MuiSwitch-switchBase.Mui-checked+.MuiSwitch-track":
-                            {
-                              backgroundColor: "red",
-                            },
-                          "& .MuiSwitch-switchBase": {
-                            color: "green",
-                          },
-                          "& .MuiSwitch-switchBase+.MuiSwitch-track": {
-                            backgroundColor: "green", // Green track when unchecked
-                          },
-                        }}
-                      />
-                    }
-                    label={worker.isCheckedOut ? "Out of Office" : "In Office"}
-                  />
-                </td>
-                <td>
-                  {worker.isCheckedOut && (
-                    <span>{timeElapsed(worker.timeStamp)}</span>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <div className="px-4 py-6 ">
+      <div className="mb-4">
+        <h1 className="text-[#0c1872] text-4xl font-bold drop-shadow-md text-center">
+          Swisher Commercial
+        </h1>
+        <h2 className="text-[#0c1872] text-2xl font-semibold drop-shadow-md text-center mt-2">
+          Check-In
+        </h2>
       </div>
-    </>
+      <div className="worker-table">
+        <div className="hidden lg:block">
+          {/* Table for larger screens */}
+          <table className="w-full border-collapse border border-gray-300">
+            <thead>
+              <tr>
+                <th className="border border-gray-300 p-2">Name</th>
+                <th className="border border-gray-300 p-2">Status</th>
+                <th className="border border-gray-300 p-2">Time Elapsed</th>
+              </tr>
+            </thead>
+            <tbody>
+              {workerList.map((worker, index) => (
+                <tr key={index}>
+                  <td
+                    className={`border border-gray-300 p-2 ${
+                      worker.isCheckedOut ? "bg-red-200" : "bg-green-200"
+                    }`}
+                  >
+                    <span className="font-bold text-lg">{worker.name}</span>
+                  </td>
+                  <td className="border border-gray-300 p-2">
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={worker.isCheckedOut}
+                          onChange={handleSwitchChange(index)}
+                          sx={{
+                            "& .MuiSwitch-switchBase.Mui-checked": {
+                              color: "red",
+                            },
+                            "& .MuiSwitch-switchBase.Mui-checked+.MuiSwitch-track":
+                              {
+                                backgroundColor: "red",
+                              },
+                            "& .MuiSwitch-switchBase": {
+                              color: "green",
+                            },
+                            "& .MuiSwitch-switchBase+.MuiSwitch-track": {
+                              backgroundColor: "green",
+                            },
+                          }}
+                        />
+                      }
+                      label={
+                        worker.isCheckedOut ? "Out of Office" : "In Office"
+                      }
+                    />
+                  </td>
+                  <td className="border border-gray-300 p-2">
+                    {worker.isCheckedOut && (
+                      <span>{timeElapsed(worker.timeStamp)}</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="block lg:hidden">
+          {/* Card layout for smaller screens */}
+          {workerList.map((worker, index) => (
+            <div
+              key={index}
+              className={`flex flex-col border rounded-md mb-4 p-4 ${
+                worker.isCheckedOut ? "bg-red-100" : "bg-green-100"
+              }`}
+            >
+              <div className="text-lg font-bold">
+                Name:{" "}
+                <span className="block sm:inline">
+                  {window.innerWidth <= 360
+                    ? worker.name.split(" ")[0]
+                    : worker.name}
+                </span>
+              </div>
+              <div className="mt-2">
+                Status:{" "}
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={worker.isCheckedOut}
+                      onChange={handleSwitchChange(index)}
+                      sx={{
+                        "& .MuiSwitch-switchBase.Mui-checked": {
+                          color: "red",
+                        },
+                        "& .MuiSwitch-switchBase.Mui-checked+.MuiSwitch-track":
+                          {
+                            backgroundColor: "red",
+                          },
+                        "& .MuiSwitch-switchBase": {
+                          color: "green",
+                        },
+                        "& .MuiSwitch-switchBase+.MuiSwitch-track": {
+                          backgroundColor: "green",
+                        },
+                      }}
+                    />
+                  }
+                  label={worker.isCheckedOut ? "Out of Office" : "In Office"}
+                />
+              </div>
+              <div className="mt-2">
+                {worker.isCheckedOut && (
+                  <div>Time Elapsed: {timeElapsed(worker.timeStamp)}</div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
 
