@@ -26,16 +26,17 @@ function App() {
   useEffect(() => {
     const savedData = localStorage.getItem("workerList");
     const parsedData = JSON.parse(savedData);
-    setWorkerList(parsedData);
-  }, []);
 
-  useEffect(() => {
-    const workers = workerNames.map((name) => ({
-      name,
-      isCheckedOut: false,
-      timeStamp: 0,
-    }));
-    setWorkerList(workers);
+    if (parsedData && Array.isArray(parsedData)) {
+      setWorkerList(parsedData);
+    } else {
+      const workers = workerNames.map((name) => ({
+        name,
+        isCheckedOut: false,
+        timeStamp: 0,
+      }));
+      setWorkerList(workers);
+    }
   }, []);
 
   useEffect(() => {
