@@ -98,7 +98,7 @@ function App() {
           Commercial
         </h1>
         <h2 className="text-[#0c1872] text-2xl font-semibold drop-shadow-md text-center mt-2">
-          Check-In
+          In/Out Tracker
         </h2>
       </div>
       <div className="worker-table">
