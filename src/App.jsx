@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Switch, FormControlLabel } from "@mui/material";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import "./App.css";
 import "./index.css";
 
@@ -14,7 +15,20 @@ function App() {
     "Joe Palms",
     "Charlie Koenn",
     "Michael Jurgenson",
+    "Cyd Debol",
+    "Sandy Goetz",
+    "Sue Kim",
   ];
+
+  function refreshLocal() {
+    const workers = workerNames.map((name) => ({
+      name,
+      isCheckedOut: false,
+      timeStamp: 0,
+    }));
+    setWorkerList(workers);
+    localStorage.setItem("workerList", JSON.stringify(workers));
+  }
 
   // Saving Locally
   function saveLocally() {
@@ -37,7 +51,7 @@ function App() {
       }));
       setWorkerList(workers);
     }
-  }, []);
+  }, [workerList]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -78,7 +92,10 @@ function App() {
     <div className="px-4 py-6 ">
       <div className="mb-4">
         <h1 className="text-[#0c1872] text-4xl font-bold drop-shadow-md text-center">
-          Swisher Commercial
+          Swisher
+        </h1>
+        <h1 className="text-[#0c1872] text-4xl font-bold drop-shadow-md text-center">
+          Commercial
         </h1>
         <h2 className="text-[#0c1872] text-2xl font-semibold drop-shadow-md text-center mt-2">
           Check-In
@@ -197,6 +214,13 @@ function App() {
           ))}
         </div>
       </div>
+      <button
+        onClick={refreshLocal}
+        className="absolute bottom-2 right-2 items-center space-x-2 px-4 py-2 bg-blue-500 text-white text-sm rounded-md"
+      >
+        <RefreshIcon />
+        <span>Refresh List</span>
+      </button>
     </div>
   );
 }
