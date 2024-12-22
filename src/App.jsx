@@ -125,33 +125,32 @@ function App() {
                     <span className="font-bold text-lg">{worker.name}</span>
                   </td>
                   <td className="border border-gray-300 p-2">
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={worker.isCheckedOut}
-                          onChange={handleSwitchChange(index)}
-                          sx={{
-                            "& .MuiSwitch-switchBase.Mui-checked": {
-                              color: "red",
+                    <div className="flex items-center justify-between">
+                      <Switch
+                        checked={worker.isCheckedOut}
+                        onChange={handleSwitchChange(index)}
+                        sx={{
+                          "& .MuiSwitch-switchBase.Mui-checked": {
+                            color: "red",
+                          },
+                          "& .MuiSwitch-switchBase.Mui-checked+.MuiSwitch-track":
+                            {
+                              backgroundColor: "red",
                             },
-                            "& .MuiSwitch-switchBase.Mui-checked+.MuiSwitch-track":
-                              {
-                                backgroundColor: "red",
-                              },
-                            "& .MuiSwitch-switchBase": {
-                              color: "green",
-                            },
-                            "& .MuiSwitch-switchBase+.MuiSwitch-track": {
-                              backgroundColor: "green",
-                            },
-                          }}
-                        />
-                      }
-                      label={
-                        worker.isCheckedOut ? "Out of Office" : "In Office"
-                      }
-                    />
+                          "& .MuiSwitch-switchBase": {
+                            color: "green",
+                          },
+                          "& .MuiSwitch-switchBase+.MuiSwitch-track": {
+                            backgroundColor: "green",
+                          },
+                        }}
+                      />
+                      <span style={{ marginRight: "1rem" }}>
+                        {worker.isCheckedOut ? "Out of Office" : "In Office"}
+                      </span>
+                    </div>
                   </td>
+
                   <td className="border border-gray-300 p-2">
                     {worker.isCheckedOut && (
                       <span>{timeElapsed(worker.timeStamp)}</span>
