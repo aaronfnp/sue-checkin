@@ -90,18 +90,20 @@ function App() {
 
   return (
     <div className="px-4 py-6 ">
-      <div className="mb-4">
-        <h1 className="text-[#0c1872] text-4xl font-bold drop-shadow-md text-center">
-          Swisher
-        </h1>
-        <h1 className="text-[#0c1872] text-4xl font-bold drop-shadow-md text-center">
-          Commercial
-        </h1>
-        <h2 className="text-[#0c1872] text-2xl font-semibold drop-shadow-md text-center mt-2">
+      <div className="flex flex-col align-center items-center mb-4">
+        <div className="max-w-fit border-2 p-4 bg-[#0c1872] border-[#0c1872] rounded-2xl drop-shadow-md">
+          <h1 className="text-[#0c1872] text-4xl text-white font-bold drop-shadow-md text-center">
+            Swisher
+          </h1>
+          <h1 className="text-[#0c1872] text-4xl text-white font-bold drop-shadow- text-center">
+            Commercial
+          </h1>
+        </div>
+        <h2 className="text-[#0c1872] text-xl font-semibold drop-shadow-md text-center mt-2 underline">
           In/Out Tracker
         </h2>
       </div>
-      <div className="worker-table">
+      <div className="worker-table drop-shadow-md">
         <div className="hidden lg:block">
           {/* Table for larger screens */}
           <table className="w-full border-collapse border border-gray-300">
