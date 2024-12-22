@@ -216,7 +216,7 @@ function App() {
       </div>
       <button
         onClick={refreshLocal}
-        className="absolute bottom-2 right-2 items-center space-x-2 px-4 py-2 bg-blue-500 text-white text-sm rounded-md"
+        className="fixed bottom-2 right-2 items-center space-x-2 px-4 py-2 bg-blue-500 text-white text-sm rounded-md"
       >
         <RefreshIcon />
         <span>Refresh List</span>
