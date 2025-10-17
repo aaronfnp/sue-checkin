@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Switch, FormControlLabel } from "@mui/material";
-import RefreshIcon from "@mui/icons-material/Refresh";
+import { db } from "./firebase";
+import { collection, doc, setDoc, updateDoc, getDocs, onSnapshot } from "firebase/firestore";
 import "./App.css";
 import "./index.css";
 
@@ -17,132 +18,90 @@ function App() {
     "Michael Jurgenson",
     "Cyd Debol",
     "Sandy Goetz",
+    "Jessie Wise",
     "Sue Kim",
   ];
 
-  function refreshLocal() {
-    const workers = workerNames.map((name) => ({
-      name,
-      isCheckedOut: false,
-      timeStamp: 0,
-    }));
-    setWorkerList(workers);
-    localStorage.setItem("workerList", JSON.stringify(workers));
-  }
+  const workersCollection = collection(db, "workers");
 
-  // Saving Locally
-  function saveLocally() {
-    localStorage.setItem("workerList", JSON.stringify(workerList));
-    console.log("updating workerlist");
-  }
-
-  // Loading Local
+  // One-time population of Firestore if empty
   useEffect(() => {
-    const savedData = localStorage.getItem("workerList");
-    const parsedData = JSON.parse(savedData);
+    const populateIfEmpty = async () => {
+      const snapshot = await getDocs(workersCollection);
+      if (snapshot.empty) {
+        for (const name of workerNames) {
+          const workerRef = doc(db, "workers", name);
+          await setDoc(workerRef, { name, isCheckedOut: false, timeStamp: 0 }, { merge: true });
+        }
+      }
+    };
 
-    if (parsedData && Array.isArray(parsedData)) {
-      setWorkerList(parsedData);
-    } else {
-      const workers = workerNames.map((name) => ({
-        name,
-        isCheckedOut: false,
-        timeStamp: 0,
-      }));
-      setWorkerList(workers);
-    }
-  }, [workerList]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setWorkerList((prevList) => [...prevList]);
-    }, 1000); // Update every second
-    return () => clearInterval(interval); // Clean up the interval when the component unmounts
+    populateIfEmpty();
   }, []);
 
-  function timeStamper() {
-    return Date.now();
-  }
+  // Real-time listener
+  useEffect(() => {
+    const unsubscribe = onSnapshot(workersCollection, (snapshot) => {
+      const workers = snapshot.docs.map((doc) => doc.data());
+      workers.sort((a, b) => a.name.localeCompare(b.name));
+      setWorkerList(workers);
+    });
 
-  function timeElapsed(timeStamp) {
-    const elapsed = Date.now() - timeStamp;
-    const minutes = Math.floor(elapsed / 60000); // Convert to minutes
-    const hours = Math.floor(minutes / 60); // Convert to hours
+    return () => unsubscribe(); // cleanup
+  }, []);
 
-    if (hours > 0) {
-      return `${hours} hours ${minutes % 60} minutes`;
-    } else {
-      return `${minutes} minutes`;
-    }
-  }
+  // Handle switching in/out
+  const handleSwitchChange = (name) => async (event) => {
+    const workerRef = doc(db, "workers", name);
+    const isCheckedOut = event.target.checked;
+    const timeStamp = isCheckedOut ? Date.now() : 0;
+    await updateDoc(workerRef, { isCheckedOut, timeStamp });
+  };
 
-  const handleSwitchChange = (index) => (event) => {
-    const updatedList = [...workerList];
-    updatedList[index].isCheckedOut = event.target.checked;
-    if (event.target.checked) {
-      updatedList[index].timeStamp = timeStamper();
-    } else {
-      updatedList[index].timeStamp = 0;
-    }
-    setWorkerList(updatedList);
-    saveLocally();
+  // Format timestamp as "MMM DD, HH:MM AM/PM"
+  const formatTime = (timeStamp) => {
+    if (!timeStamp) return "";
+    const date = new Date(timeStamp);
+    return date.toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
   };
 
   return (
-    <div className="px-4 py-6 ">
-      <div className="flex flex-col align-center items-center mb-4">
+    <div className="px-4 py-6">
+      <div className="flex flex-col items-center mb-4">
         <div className="max-w-fit border-2 p-4 bg-[#0c1872] border-[#0c1872] rounded-2xl drop-shadow-md">
-          <h1 className="text-[#0c1872] text-4xl text-white font-bold drop-shadow-md text-center">
-            Swisher
-          </h1>
-          <h1 className="text-[#0c1872] text-4xl text-white font-bold drop-shadow- text-center">
-            Commercial
-          </h1>
+          <h1 className="text-4xl text-white font-bold drop-shadow-md text-center">Swisher</h1>
+          <h1 className="text-4xl text-white font-bold drop-shadow-md text-center">Commercial</h1>
         </div>
-        <h2 className="text-[#0c1872] text-xl font-semibold drop-shadow-md text-center mt-2 underline">
-          In/Out Tracker
-        </h2>
+        <h2 className="text-xl font-semibold drop-shadow-md text-center mt-2 underline">In/Out Tracker</h2>
       </div>
+
       <div className="worker-table drop-shadow-md">
+        {/* Desktop Table */}
         <div className="hidden lg:block">
-          {/* Table for larger screens */}
           <table className="w-full border-collapse border border-gray-300">
             <thead>
               <tr>
                 <th className="border border-gray-300 p-2">Name</th>
                 <th className="border border-gray-300 p-2">Status</th>
-                <th className="border border-gray-300 p-2">Time Elapsed</th>
+                <th className="border border-gray-300 p-2">Time of Leave</th>
               </tr>
             </thead>
             <tbody>
-              {workerList.map((worker, index) => (
-                <tr key={index}>
-                  <td
-                    className={`border border-gray-300 p-2 ${
-                      worker.isCheckedOut ? "bg-red-200" : "bg-green-200"
-                    }`}
-                  >
+              {workerList.map((worker) => (
+                <tr key={worker.name}>
+                  <td className={`border border-gray-300 p-2 ${worker.isCheckedOut ? "bg-red-200" : "bg-green-200"}`}>
                     <span className="font-bold text-lg">{worker.name}</span>
                   </td>
                   <td className="border border-gray-300 p-2">
                     <div className="flex items-center justify-between">
                       <Switch
                         checked={worker.isCheckedOut}
-                        onChange={handleSwitchChange(index)}
+                        onChange={handleSwitchChange(worker.name)}
                         sx={{
-                          "& .MuiSwitch-switchBase.Mui-checked": {
-                            color: "red",
-                          },
-                          "& .MuiSwitch-switchBase.Mui-checked+.MuiSwitch-track":
-                            {
-                              backgroundColor: "red",
-                            },
-                          "& .MuiSwitch-switchBase": {
-                            color: "green",
-                          },
-                          "& .MuiSwitch-switchBase+.MuiSwitch-track": {
-                            backgroundColor: "green",
-                          },
+                          "& .MuiSwitch-switchBase.Mui-checked": { color: "red" },
+                          "& .MuiSwitch-switchBase.Mui-checked+.MuiSwitch-track": { backgroundColor: "red" },
+                          "& .MuiSwitch-switchBase": { color: "green" },
+                          "& .MuiSwitch-switchBase+.MuiSwitch-track": { backgroundColor: "green" },
                         }}
                       />
                       <span style={{ marginRight: "1rem" }}>
@@ -150,11 +109,8 @@ function App() {
                       </span>
                     </div>
                   </td>
-
                   <td className="border border-gray-300 p-2">
-                    {worker.isCheckedOut && (
-                      <span>{timeElapsed(worker.timeStamp)}</span>
-                    )}
+                    {worker.isCheckedOut && <span>{formatTime(worker.timeStamp)}</span>}
                   </td>
                 </tr>
               ))}
@@ -162,66 +118,51 @@ function App() {
           </table>
         </div>
 
-        <div className="block lg:hidden">
-          {/* Card layout for smaller screens */}
-          {workerList.map((worker, index) => (
+        {/* Mobile Cards */}
+        <div className="block lg:hidden space-y-4">
+          {workerList.map((worker) => (
             <div
-              key={index}
-              className={`flex flex-col border rounded-md mb-4 p-4 ${
-                worker.isCheckedOut ? "bg-red-100" : "bg-green-100"
-              }`}
+              key={worker.name}
+              className="flex flex-col border rounded-md p-4 shadow-md bg-white"
             >
-              <div className="text-lg font-bold">
-                Name:{" "}
-                <span className="block sm:inline">
-                  {window.innerWidth <= 360
-                    ? worker.name.split(" ")[0]
-                    : worker.name}
-                </span>
+              {/* Name with colored background */}
+              <div
+                className={`font-bold text-lg px-2 py-1 rounded ${
+                  worker.isCheckedOut ? "bg-red-400 text-white" : "bg-green-400 text-white"
+                }`}
+              >
+                {worker.name}
               </div>
-              <div className="mt-2">
-                Status:{" "}
+
+              {/* Status switch */}
+              <div className="mt-3 flex items-center justify-between">
                 <FormControlLabel
                   control={
                     <Switch
                       checked={worker.isCheckedOut}
-                      onChange={handleSwitchChange(index)}
+                      onChange={handleSwitchChange(worker.name)}
                       sx={{
-                        "& .MuiSwitch-switchBase.Mui-checked": {
-                          color: "red",
-                        },
-                        "& .MuiSwitch-switchBase.Mui-checked+.MuiSwitch-track":
-                          {
-                            backgroundColor: "red",
-                          },
-                        "& .MuiSwitch-switchBase": {
-                          color: "green",
-                        },
-                        "& .MuiSwitch-switchBase+.MuiSwitch-track": {
-                          backgroundColor: "green",
-                        },
+                        "& .MuiSwitch-switchBase.Mui-checked": { color: "red" },
+                        "& .MuiSwitch-switchBase.Mui-checked+.MuiSwitch-track": { backgroundColor: "red" },
+                        "& .MuiSwitch-switchBase": { color: "green" },
+                        "& .MuiSwitch-switchBase+.MuiSwitch-track": { backgroundColor: "green" },
                       }}
                     />
                   }
                   label={worker.isCheckedOut ? "Out of Office" : "In Office"}
                 />
               </div>
-              <div className="mt-2">
-                {worker.isCheckedOut && (
-                  <div>Time Elapsed: {timeElapsed(worker.timeStamp)}</div>
-                )}
-              </div>
+
+              {/* Time of Leave */}
+              {worker.isCheckedOut && (
+                <div className="mt-2 text-gray-700 font-medium">
+                  Time of Leave: {formatTime(worker.timeStamp)}
+                </div>
+              )}
             </div>
           ))}
         </div>
       </div>
-      <button
-        onClick={refreshLocal}
-        className="fixed bottom-2 right-2 items-center space-x-2 px-4 py-2 bg-blue-500 text-white text-sm rounded-md"
-      >
-        <RefreshIcon />
-        <span>Refresh List</span>
-      </button>
     </div>
   );
 }
