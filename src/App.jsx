@@ -20,6 +20,8 @@ function App() {
     "Sandy Goetz",
     "Jessie Wise",
     "Sue Kim",
+    "Randy Maas",
+    "Austin McBee",
   ];
 
   const workersCollection = collection(db, "workers");
